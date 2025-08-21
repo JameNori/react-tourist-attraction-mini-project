@@ -13,15 +13,19 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+// API สำหรับดึงข้อมูลทั้งหมด
 app.get("/trips", (req, res) => {
   let keywords = req.query.keywords;
 
-  if (keywords === undefined) {
-    return res.status(400).json({
-      message: "Please send keywords parameter in the URL endpoint",
-    });
+  console.log("API /trips called with keywords:", keywords);
+
+  // ถ้าไม่มี keywords ให้ส่งข้อมูลทั้งหมด
+  if (!keywords || keywords.trim() === "") {
+    console.log("No keywords provided, returning all trips");
+    return res.json(trips);
   }
 
+  // ถ้ามี keywords ให้ค้นหา
   const regexKeywords = keywords.split(" ").join("|");
   const regex = new RegExp(regexKeywords, "ig");
   const results = trips.filter((trip) => {
@@ -32,9 +36,13 @@ app.get("/trips", (req, res) => {
     );
   });
 
-  return res.json({
-    data: results,
-  });
+  console.log(`Found ${results.length} trips matching "${keywords}"`);
+  return res.json(results);
+});
+
+// API สำหรับดึงข้อมูลทั้งหมดโดยไม่ต้องมี query parameters
+app.get("/trips/all", (req, res) => {
+  return res.json(trips);
 });
 
 app.listen(port, () => {
