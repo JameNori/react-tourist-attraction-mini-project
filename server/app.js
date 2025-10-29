@@ -4,7 +4,9 @@ import cors from "cors";
 import trips from "./db.js";
 
 const app = express();
-const port = 4001;
+// ใช้ PORT จาก environment variable (สำหรับ production/deployment)
+// ถ้าไม่มีจะใช้ 4001 เป็นค่า default (สำหรับ development)
+const port = process.env.PORT || 4001;
 
 app.use(cors());
 app.use(bodyParser.json());
