@@ -7,6 +7,10 @@ function DataProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ใช้ environment variable สำหรับ API URL (สำหรับ production)
+  // ถ้าไม่มีจะใช้ localhost เป็นค่า default (สำหรับ development)
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4001";
+
   useEffect(() => {
     fetchTravelData();
   }, []);
@@ -16,8 +20,8 @@ function DataProvider({ children }) {
       setLoading(true);
       setError(null);
 
-      // ใช้วิธีที่ 1: ส่ง keywords เป็น empty string เสมอ
-      const response = await axios.get("http://localhost:4001/trips?keywords=");
+      // ใช้ API_URL จาก environment variable
+      const response = await axios.get(`${API_URL}/trips?keywords=`);
       setTravelData(response.data);
       console.log(
         "Loaded travel data from server:",
@@ -48,9 +52,9 @@ function DataProvider({ children }) {
         return;
       }
 
-      // ค้นหาจาก server API
+      // ค้นหาจาก server API โดยใช้ API_URL จาก environment variable
       const response = await axios.get(
-        `http://localhost:4001/trips?keywords=${encodeURIComponent(keywords)}`
+        `${API_URL}/trips?keywords=${encodeURIComponent(keywords)}`
       );
       setTravelData(response.data);
       console.log(`Found ${response.data.length} trips matching "${keywords}"`);
