@@ -8,6 +8,9 @@
 react-tourist-attraction-mini-project/
 ├── client/          # React Frontend (Vite)
 ├── server/          # Express Backend API
+│   ├── api/         # Vercel Serverless Functions (สำหรับ production)
+│   ├── app.js       # Express app (สำหรับ development)
+│   └── db.js        # ข้อมูลสถานที่ท่องเที่ยว
 └── info/            # ไฟล์ข้อมูลเสริม
 ```
 
@@ -73,9 +76,11 @@ Server ใช้ `npm start` (ใช้ `node app.js`) สำหรับ produc
 
 ## 🌐 การ Deploy
 
-### Client - Deploy บน Vercel
+### Deploy ทั้ง Frontend และ Backend บน Vercel
 
-1. **Push โค้ดขึ้น GitHub** (ถ้ายังไม่มี)
+โปรเจกต์นี้ใช้ Vercel Serverless Functions สำหรับ Backend API ซึ่งสามารถ deploy ทั้ง Frontend และ Backend ในโปรเจกต์เดียวกันได้
+
+1. **Push โค้ดขึ้น GitHub**
 
    ```bash
    git add .
@@ -92,9 +97,10 @@ Server ใช้ `npm start` (ใช้ `node app.js`) สำหรับ produc
 
 3. **ตั้งค่าโปรเจกต์บน Vercel**
 
-   - **Root Directory**: `client`
+   - Vercel จะ detect `vercel.json` อัตโนมัติ
+   - **ไม่ต้องตั้ง Root Directory** (ใช้ root directory)
    - **Framework Preset**: Vite (จะ detect อัตโนมัติ)
-   - **Build Command**: `npm run build`
+   - **Build Command**: `npm run build` (สำหรับ client)
    - **Output Directory**: `dist`
 
 4. **เพิ่ม Environment Variable**
@@ -102,70 +108,36 @@ Server ใช้ `npm start` (ใช้ `node app.js`) สำหรับ produc
    - ไปที่ Settings → Environment Variables
    - เพิ่มตัวแปรใหม่:
      - **Name**: `VITE_API_URL`
-     - **Value**: URL ของ server ที่ deploy แล้ว (เช่น `https://your-server.railway.app`)
-   - **สำคัญ**: ต้อง deploy server ก่อน แล้วค่อยใส่ URL นี้
+     - **Value**: `/api` (relative path สำหรับ Vercel Serverless Functions)
+     - หรือใช้ full URL: `https://your-project.vercel.app/api`
+   - **สำคัญ**: ใช้ relative path `/api` จะไม่มีปัญหา CORS
 
 5. **Deploy**
    - กด "Deploy" และรอให้เสร็จ
+   - Vercel จะ deploy ทั้ง Frontend และ Backend อัตโนมัติ
 
-### Server - Deploy บน Railway (แนะนำ)
+### API Endpoints
 
-1. **Push โค้ดขึ้น GitHub** (ถ้ายังไม่มี)
+หลังจาก deploy แล้ว API endpoints จะอยู่ที่:
 
-2. **เชื่อมต่อ Railway**
-
-   - ไปที่ [railway.app](https://railway.app)
-   - Sign up/Sign in ด้วย GitHub account
-   - กด "New Project" → "Deploy from GitHub repo"
-   - เลือก repository นี้
-
-3. **ตั้งค่าโปรเจกต์บน Railway**
-
-   - Railway จะ detect โปรเจกต์อัตโนมัติ
-   - **Root Directory**: `server` (ถ้าไม่ถูกต้อง ให้ตั้งเอง)
-   - **Start Command**: `npm start` (ควรจะเป็น default)
-
-4. **เพิ่ม Environment Variable** (ถ้าจำเป็น)
-
-   - Railway จะกำหนด PORT อัตโนมัติ
-   - ถ้า server ใช้ `process.env.PORT` ก็ไม่ต้องตั้งอะไรเพิ่ม
-
-5. **Deploy**
-
-   - Railway จะ deploy อัตโนมัติและให้ URL (เช่น `https://your-app.railway.app`)
-   - **คัดลอก URL นี้ไว้** เพื่อไปตั้งค่าใน Vercel
-
-6. **อัพเดท Vercel Environment Variable**
-   - กลับไปที่ Vercel project
-   - ไปที่ Settings → Environment Variables
-   - แก้ไข `VITE_API_URL` ให้เป็น URL จาก Railway
-   - Redeploy project
-
-### Server - Deploy บน Render (ทางเลือก)
-
-1. ไปที่ [render.com](https://render.com)
-2. สร้าง **Web Service** ใหม่
-3. เชื่อมต่อ GitHub repository
-4. ตั้งค่า:
-   - **Root Directory**: `server`
-   - **Build Command**: `npm install`
-   - **Start Command**: `npm start`
-5. Render จะให้ URL (เช่น `https://your-app.onrender.com`)
+- `https://your-project.vercel.app/api/` - Root endpoint
+- `https://your-project.vercel.app/api/trips` - ดึงข้อมูลทั้งหมด (พร้อม search)
+- `https://your-project.vercel.app/api/trips/all` - ดึงข้อมูลทั้งหมด
 
 ## ✅ Checklist ก่อน Deploy
 
 - [x] แก้ไข API URL ให้ใช้ environment variable
-- [x] ปรับ `server/package.json` ให้มี production start script
-- [ ] Deploy server บน Railway/Render
-- [ ] Copy server URL และตั้งค่า `VITE_API_URL` ใน Vercel
-- [ ] Deploy client บน Vercel
+- [x] สร้าง `server/api/server.js` สำหรับ Vercel Serverless Functions
+- [x] สร้าง `vercel.json` สำหรับ configuration
+- [x] ตั้งค่า `VITE_API_URL` = `/api` ใน Vercel Environment Variables
+- [ ] Deploy บน Vercel (จะ deploy ทั้ง Frontend และ Backend)
 - [ ] ทดสอบว่า frontend เชื่อมต่อกับ backend ได้
 
 ## 🛠️ เทคโนโลยีที่ใช้
 
 - **Frontend**: React 18, Vite, Axios
-- **Backend**: Express.js, Node.js
-- **Deployment**: Vercel (Frontend), Railway/Render (Backend)
+- **Backend**: Express.js, Node.js, Vercel Serverless Functions
+- **Deployment**: Vercel (Frontend + Backend)
 
 ## 📝 License
 
