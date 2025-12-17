@@ -77,9 +77,9 @@ Server ใช้ `npm start` (ใช้ `node app.js`) สำหรับ produc
 
 ## 🌐 การ Deploy
 
-### Deploy ทั้ง Frontend และ Backend บน Vercel
+โปรเจกต์นี้ใช้ Monorepo structure โดยแยก deploy Frontend และ Backend เป็น 2 โปรเจกต์ Vercel แยกกัน
 
-โปรเจกต์นี้ใช้ Vercel Serverless Functions สำหรับ Backend API ซึ่งสามารถ deploy ทั้ง Frontend และ Backend ในโปรเจกต์เดียวกันได้
+### Frontend - Deploy บน Vercel
 
 1. **Push โค้ดขึ้น GitHub**
 
@@ -89,18 +89,19 @@ Server ใช้ `npm start` (ใช้ `node app.js`) สำหรับ produc
    git push origin main
    ```
 
-2. **เชื่อมต่อ Vercel**
+2. **สร้าง Frontend Project บน Vercel**
 
    - ไปที่ [vercel.com](https://vercel.com)
    - Sign in ด้วย GitHub account
    - กด "Add New Project"
-   - เลือก repository นี้
+   - เลือก repository: `react-tourist-attraction-mini-project`
 
-3. **ตั้งค่าโปรเจกต์บน Vercel**
+3. **ตั้งค่า Frontend Project**
 
-   - Vercel จะ detect `vercel.json` อัตโนมัติ
-   - **ไม่ต้องตั้ง Root Directory** (ใช้ root directory)
+   - **Project Name**: `react-tourist-attraction-mini-project` (หรือชื่ออื่น)
+   - **Root Directory**: `client` ← สำคัญ
    - **Framework Preset**: Vite (จะ detect อัตโนมัติ)
+   - Vercel จะ detect `client/vercel.json` อัตโนมัติ
    - **Build Command**: `npm run build` (สำหรับ client)
    - **Output Directory**: `dist`
 
@@ -109,36 +110,66 @@ Server ใช้ `npm start` (ใช้ `node app.js`) สำหรับ produc
    - ไปที่ Settings → Environment Variables
    - เพิ่มตัวแปรใหม่:
      - **Name**: `VITE_API_URL`
-     - **Value**: `/api` (relative path สำหรับ Vercel Serverless Functions)
-     - หรือใช้ full URL: `https://your-project.vercel.app/api`
-   - **สำคัญ**: ใช้ relative path `/api` จะไม่มีปัญหา CORS
+     - **Value**: URL จาก Backend Project (เช่น `https://your-backend.vercel.app`)
+     - **สำคัญ**: ต้อง deploy Backend ก่อน แล้วค่อยใส่ URL นี้
+   - **Environment**: Production, Preview, Development
 
 5. **Deploy**
    - กด "Deploy" และรอให้เสร็จ
-   - Vercel จะ deploy ทั้ง Frontend และ Backend อัตโนมัติ
+
+### Backend - Deploy บน Vercel
+
+1. **สร้าง Backend Project บน Vercel**
+
+   - ไปที่ Vercel Dashboard
+   - กด "Add New Project"
+   - เลือก repository เดียวกัน: `react-tourist-attraction-mini-project`
+
+2. **ตั้งค่า Backend Project**
+
+   - **Project Name**: `react-tourist-attraction-mini-project-backend` (หรือชื่ออื่น)
+   - **Root Directory**: `server` ← สำคัญ
+   - **Framework Preset**: Other (หรือเว้นว่าง)
+   - Vercel จะ detect `server/vercel.json` อัตโนมัติ
+   - **Build Command**: (เว้นว่าง - ไม่ต้อง build)
+   - **Output Directory**: (เว้นว่าง)
+
+3. **Deploy**
+   - กด "Deploy" และรอให้เสร็จ
+   - Vercel จะ deploy Serverless Functions จาก `server/api/server.js`
+   - **คัดลอก URL ที่ได้ไว้** (เช่น `https://your-backend.vercel.app`)
+
+4. **อัพเดท Frontend Environment Variable**
+   - กลับไปที่ Frontend Project
+   - ไปที่ Settings → Environment Variables
+   - แก้ไข `VITE_API_URL` ให้เป็น URL จาก Backend Project
+   - Redeploy Frontend Project
 
 ### API Endpoints
 
-หลังจาก deploy แล้ว API endpoints จะอยู่ที่:
+หลังจาก deploy Backend แล้ว API endpoints จะอยู่ที่:
 
-- `https://your-project.vercel.app/api/` - Root endpoint
-- `https://your-project.vercel.app/api/trips` - ดึงข้อมูลทั้งหมด (พร้อม search)
-- `https://your-project.vercel.app/api/trips/all` - ดึงข้อมูลทั้งหมด
+- `https://your-backend.vercel.app/` - Root endpoint ("Hello World!")
+- `https://your-backend.vercel.app/trips` - ดึงข้อมูลทั้งหมด (พร้อม search)
+- `https://your-backend.vercel.app/trips/all` - ดึงข้อมูลทั้งหมด
 
 ## ✅ Checklist ก่อน Deploy
 
 - [x] แก้ไข API URL ให้ใช้ environment variable
 - [x] สร้าง `server/api/server.js` สำหรับ Vercel Serverless Functions
-- [x] สร้าง `vercel.json` สำหรับ configuration
-- [x] ตั้งค่า `VITE_API_URL` = `/api` ใน Vercel Environment Variables
-- [ ] Deploy บน Vercel (จะ deploy ทั้ง Frontend และ Backend)
+- [x] สร้าง `client/vercel.json` สำหรับ Frontend Project
+- [x] สร้าง `server/vercel.json` สำหรับ Backend Project
+- [ ] Deploy Backend Project บน Vercel (Root Directory = `server`)
+- [ ] เก็บ URL จาก Backend Project
+- [ ] ตั้งค่า `VITE_API_URL` = Backend URL ใน Frontend Project
+- [ ] Deploy Frontend Project บน Vercel (Root Directory = `client`)
 - [ ] ทดสอบว่า frontend เชื่อมต่อกับ backend ได้
 
 ## 🛠️ เทคโนโลยีที่ใช้
 
 - **Frontend**: React 18, Vite, Axios
 - **Backend**: Express.js, Node.js, Vercel Serverless Functions
-- **Deployment**: Vercel (Frontend + Backend)
+- **Deployment**: Vercel (แยก Frontend และ Backend เป็น 2 โปรเจกต์)
 
 ## 📝 License
 
