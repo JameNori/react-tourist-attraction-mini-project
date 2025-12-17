@@ -6,10 +6,10 @@
 
 ```
 react-tourist-attraction-mini-project/
-├── api/             # Vercel Serverless Functions (สำหรับ production)
-│   └── server.js    # Express app สำหรับ Vercel
 ├── client/          # React Frontend (Vite)
-├── server/          # Express Backend API (สำหรับ development)
+├── server/          # Express Backend API
+│   ├── api/         # Vercel Serverless Functions (สำหรับ production)
+│   │   └── server.js # Express app สำหรับ Vercel
 │   ├── app.js       # Express app (สำหรับ development)
 │   └── db.js        # ข้อมูลสถานที่ท่องเที่ยว
 └── info/            # ไฟล์ข้อมูลเสริม
