@@ -9,7 +9,10 @@ function DataProvider({ children }) {
 
   // ใช้ environment variable สำหรับ API URL (สำหรับ production)
   // ถ้าไม่มีจะใช้ localhost เป็นค่า default (สำหรับ development)
-  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4001";
+  // ลบ trailing slash เพื่อป้องกัน double slash ใน URL
+  const API_URL = (
+    import.meta.env.VITE_API_URL || "http://localhost:4001"
+  ).replace(/\/$/, "");
 
   useEffect(() => {
     fetchTravelData();
