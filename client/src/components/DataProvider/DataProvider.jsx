@@ -15,6 +15,11 @@ function DataProvider({ children }) {
   ).replace(/\/$/, "");
 
   useEffect(() => {
+    // Debug: ดูว่า API_URL และ request URL เป็นอะไร
+    console.log("🔍 [DataProvider] Environment Variables:");
+    console.log("  - VITE_API_URL (raw):", import.meta.env.VITE_API_URL);
+    console.log("  - Final API_URL:", API_URL);
+    console.log("  - Request URL will be:", `${API_URL}/trips?keywords=`);
     fetchTravelData();
   }, []);
 
@@ -24,7 +29,9 @@ function DataProvider({ children }) {
       setError(null);
 
       // ใช้ API_URL จาก environment variable
-      const response = await axios.get(`${API_URL}/trips?keywords=`);
+      const requestURL = `${API_URL}/trips?keywords=`;
+      console.log("🚀 [DataProvider] Fetching data from:", requestURL);
+      const response = await axios.get(requestURL);
       setTravelData(response.data);
       console.log(
         "Loaded travel data from server:",
@@ -56,9 +63,9 @@ function DataProvider({ children }) {
       }
 
       // ค้นหาจาก server API โดยใช้ API_URL จาก environment variable
-      const response = await axios.get(
-        `${API_URL}/trips?keywords=${encodeURIComponent(keywords)}`
-      );
+      const searchURL = `${API_URL}/trips?keywords=${encodeURIComponent(keywords)}`;
+      console.log("🔍 [DataProvider] Searching with URL:", searchURL);
+      const response = await axios.get(searchURL);
       setTravelData(response.data);
       console.log(`Found ${response.data.length} trips matching "${keywords}"`);
     } catch (err) {
