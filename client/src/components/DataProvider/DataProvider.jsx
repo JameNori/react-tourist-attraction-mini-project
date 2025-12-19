@@ -50,7 +50,7 @@ function DataProvider({ children }) {
     fetchTravelData();
   };
 
-  // เพิ่มฟังก์ชันค้นหา
+  
   const searchTrips = async (keywords) => {
     try {
       setLoading(true);
