@@ -5,11 +5,40 @@ import trips from "../db.js";
 
 const app = express();
 
-// CORS configuration - อนุญาตทุก origin (สำหรับ production)
+// CORS configuration - ตั้งค่า CORS headers โดยตรงในทุก response
+// ใช้วิธีนี้เพื่อให้แน่ใจว่า headers จะถูกส่งออกมาใน Vercel serverless functions
+app.use((req, res, next) => {
+  // ตั้งค่า CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, X-Requested-With"
+  );
+  res.setHeader(
+    "Access-Control-Expose-Headers",
+    "Content-Length, Content-Type"
+  );
+
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+
+  next();
+});
+
+// ใช้ CORS middleware เป็น backup (สำหรับกรณีที่ middleware ด้านบนไม่ได้ทำงาน)
 app.use(
   cors({
     origin: "*",
-    credentials: true,
+    credentials: false,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+    exposedHeaders: ["Content-Length", "Content-Type"],
   })
 );
 
@@ -52,5 +81,7 @@ app.get("/trips/all", (req, res) => {
   return res.json(trips);
 });
 
-// Export Express app as serverless function
+// Export Express app directly สำหรับ Vercel
+// @vercel/node จะ wrap Express app ให้เป็น serverless function อัตโนมัติ
+// Express middleware (รวมถึง CORS) จะทำงานได้ถูกต้อง
 export default app;
