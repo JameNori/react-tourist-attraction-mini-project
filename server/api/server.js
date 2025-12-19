@@ -81,25 +81,7 @@ app.get("/trips/all", (req, res) => {
   return res.json(trips);
 });
 
-// Export handler function สำหรับ Vercel serverless functions
-// ตั้งค่า CORS headers ก่อนส่งไปยัง Express app เพื่อให้แน่ใจว่าจะถูกส่งออกมา
-export default function handler(req, res) {
-  // ตั้งค่า CORS headers ก่อนส่งไปยัง Express app
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "Content-Type, Authorization, X-Requested-With"
-  );
-
-  // Handle preflight requests
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  // ส่งไปยัง Express app
-  return app(req, res);
-}
+// Export Express app directly สำหรับ Vercel
+// @vercel/node จะ wrap Express app ให้เป็น serverless function อัตโนมัติ
+// Express middleware (รวมถึง CORS) จะทำงานได้ถูกต้อง
+export default app;
